@@ -34,6 +34,9 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+//                //koin
+//                implementation("io.insert-koin:koin-core:3.1.2")
+//                implementation("io.insert-koin:koin-android:3.1.2")
             }
         }
         val commonTest by getting {

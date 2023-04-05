@@ -12,26 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.bruno.kmm_demoapp.Greeting
+import com.culqi.commons.ui.theme.CulqiTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyApplicationTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background,
-                ) {
-                    var text by remember { mutableStateOf("Loading") }
-                    LaunchedEffect(true) {
-                        text = try {
-                            Greeting().greet()
-                        } catch (e: Exception) {
-                            e.localizedMessage ?: "error"
-                        }
-                    }
-                    GreetingView(text)
-                }
+            CulqiTheme {
+
             }
         }
     }
@@ -55,5 +43,25 @@ fun GreetingView(text: String) {
 fun DefaultPreview() {
     MyApplicationTheme {
         GreetingView("Hello, Android!")
+    }
+}
+
+@Composable
+fun DefaultView() {
+    MyApplicationTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colors.background,
+        ) {
+            var text by remember { mutableStateOf("Loading") }
+            LaunchedEffect(true) {
+                text = try {
+                    Greeting().greet()
+                } catch (e: Exception) {
+                    e.localizedMessage ?: "error"
+                }
+            }
+            GreetingView(text)
+        }
     }
 }

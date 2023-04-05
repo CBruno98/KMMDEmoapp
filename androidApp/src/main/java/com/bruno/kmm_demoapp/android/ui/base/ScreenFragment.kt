@@ -1,7 +1,5 @@
 package com.bruno.kmm_demoapp.android.ui.base
 
-import android.app.DialogFragment
-import android.app.Fragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,15 +11,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
+import com.bruno.kmm_demoapp.android.R
+import com.bruno.kmm_demoapp.android.components.CulqiBottomSheetState
+import com.bruno.kmm_demoapp.android.components.localCulqiBottomState
+import com.bruno.kmm_demoapp.android.databinding.NavHostBinding
+import com.bruno.kmm_demoapp.android.utils.LazyNavHostController
+import com.bruno.kmm_demoapp.android.utils.network.ConnectivityObserver
+import com.bruno.kmm_demoapp.android.utils.network.NetworkConnectivityObserver
+import com.culqi.commons.ui.theme.CulqiTheme
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.core.parameter.ParametersHolder
+import org.koin.core.parameter.parametersOf
 import kotlin.reflect.KClass
 
 abstract class ScreenFragment<V : ViewModel>(
     private val clazz: KClass<V>,
-    private val viewModelStore: Int? = null,
+    private val viewModelStoree: Int? = null,
     private val blockBackAction: Boolean = false,
     private val fullScreen: Boolean = false,
     private val animation: Int? = null,
@@ -37,8 +54,8 @@ abstract class ScreenFragment<V : ViewModel>(
     var navHostBinding: NavHostBinding? = null
 
     protected val viewModel: V by lazy {
-        if (viewModelStore != null) {
-            findNavController().getViewModelStoreOwner(viewModelStore)
+        if (viewModelStoree != null) {
+            findNavController().getViewModelStoreOwner(viewModelStoree)
                 .getViewModel(clazz = clazz, parameters = ::getParameters)
         } else {
             getViewModel(clazz = clazz, parameters = ::getParameters)
@@ -60,7 +77,7 @@ abstract class ScreenFragment<V : ViewModel>(
         connectivityObserver = NetworkConnectivityObserver(requireContext())
 
         if (fullScreen) {
-            setStyle(STYLE_NORMAL, com.culqi.commons.R.style.DialogFragmentTheme)
+            setStyle(STYLE_NORMAL, R.style.DialogFragmentTheme)
         }
     }
 
@@ -71,8 +88,8 @@ abstract class ScreenFragment<V : ViewModel>(
     ): View {
         lazyNavHostController?.value
         onInit()
-        initDelegateApiError()
-        initScreenTimeScope()
+//        initDelegateApiError()
+//        initScreenTimeScope()
         viewModel
         return ComposeView(requireContext()).apply {
             setContent {
@@ -108,9 +125,9 @@ abstract class ScreenFragment<V : ViewModel>(
                     BackHandler {}
                 }
 
-                if (status == ConnectivityObserver.Status.Lost) {
-                    NotInternetDialog().show()
-                }
+//                if (status == ConnectivityObserver.Status.Lost) {
+//                    NotInternetDialog().show()
+//                }
             }
         }
     }
@@ -174,41 +191,41 @@ abstract class ScreenFragment<V : ViewModel>(
     }
 
 
-    private fun initDelegateApiError() {
-        viewModel.let { viewModel ->
-            if (viewModel is ApiErrorDelegate) {
-                lifecycleScope.launchWhenResumed {
-                    viewModel.getApiError().collect() {
-                        onApiError(it)
-                    }
-                }
-            }
-        }
-    }
+//    private fun initDelegateApiError() {
+//        viewModel.let { viewModel ->
+//            if (viewModel is ApiErrorDelegate) {
+//                lifecycleScope.launchWhenResumed {
+//                    viewModel.getApiError().collect() {
+//                        onApiError(it)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    open fun onApiError(apiError: ApiError) {
-        when (apiError) {
-            ApiError.Unauthorized -> {
-                UnauthorizedDialog(
-                    onCancel = {
-                        val intent = Intent()
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        intent.setClassName(
-                            requireActivity(),
-                            "com.culqi.culqiapp.ui.main.MainActivity"
-                        )
-                        startActivity(intent)
-                        requireActivity().finish()
-                    }
-                ).show()
-            }
-
-            ApiError.None -> {}
-            ApiError.NotInternet -> {
-                if(!requireContext().isInternetAvailable()) NotInternetDialog().show()
-            }
-        }
-    }
+//    open fun onApiError(apiError: ApiError) {
+//        when (apiError) {
+//            ApiError.Unauthorized -> {
+//                UnauthorizedDialog(
+//                    onCancel = {
+//                        val intent = Intent()
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+//                        intent.setClassName(
+//                            requireActivity(),
+//                            "com.culqi.culqiapp.ui.main.MainActivity"
+//                        )
+//                        startActivity(intent)
+//                        requireActivity().finish()
+//                    }
+//                ).show()
+//            }
+//
+//            ApiError.None -> {}
+//            ApiError.NotInternet -> {
+//                if(!requireContext().isInternetAvailable()) NotInternetDialog().show()
+//            }
+//        }
+//    }
 
     fun setLazyHostController(lazy: LazyNavHostController) {
         lazyNavHostController = lazy
@@ -220,21 +237,21 @@ abstract class ScreenFragment<V : ViewModel>(
     }
 
 
-    private fun initScreenTimeScope() {
-        destinationId?.let {
-            viewModel.let { viewModel ->
-                if (viewModel is ScreenTimeScope) {
-                    initScreenTimeScope(viewModel, it)
-                }
-            }
-        }
-    }
+//    private fun initScreenTimeScope() {
+//        destinationId?.let {
+//            viewModel.let { viewModel ->
+//                if (viewModel is ScreenTimeScope) {
+//                    initScreenTimeScope(viewModel, it)
+//                }
+//            }
+//        }
+//    }
 
-    protected fun Fragment.changeSubScreen(subScreenName: String) {
-        viewModel.let { viewModel ->
-            if (viewModel is ScreenTimeScope) {
-                viewModel.changeSubScreen(subScreenName = subScreenName)
-            }
-        }
-    }
+//    protected fun Fragment.changeSubScreen(subScreenName: String) {
+//        viewModel.let { viewModel ->
+//            if (viewModel is ScreenTimeScope) {
+//                viewModel.changeSubScreen(subScreenName = subScreenName)
+//            }
+//        }
+//    }
 }
